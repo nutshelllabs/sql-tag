@@ -1,0 +1,37 @@
+{
+  "name": "@nutshelllabs/sql-tag",
+  "version": "0.0.1",
+  "description": "A template tag helper for writing SQL queries in TypeScript",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vitest",
+    "test": "vitest --run",
+    "build": "tsup",
+    "lint": "tsc --noEmit",
+    "format": "prettier --write 'src/*.ts'",
+    "check-format": "prettier --check 'src/*.ts'",
+    "check-exports": "attw --pack . --ignore-rules=cjs-resolves-to-esm",
+    "ci": "pnpm run build && pnpm run check-format && pnpm run check-exports && pnpm run lint && pnpm run test"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.cjs"
+    }
+  },
+  "author": "Peter Walker",
+  "license": "MIT",
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.17.3",
+    "@types/node": "^24.0.3",
+    "prettier": "^3.5.3",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.3"
+  },
+  "dependencies": {
+    "@tsconfig/node22": "^22.0.2"
+  }
+}
