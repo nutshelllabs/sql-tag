@@ -30,3 +30,6 @@ jobs:
 
       - name: Run CI
         run: pnpm run ci
+
+      - name: Check changesets
+        run: pnpm changeset status --since=main
