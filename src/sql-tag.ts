@@ -13,15 +13,18 @@ export type SQLIdentifier = {
   value: string;
 };
 
-type SQLRaw = {
+export type SQLRaw = {
   __isRaw: true;
   value: string;
 };
 
-type SQLLiteral = {
+export type SQLLiteral = {
   __isLiteral: true;
   value: string;
 };
+
+/** Any SQL* type return from a sql-tag function */
+export type SQLAny = SQLFragment | SQLIdentifier | SQLRaw | SQLLiteral;
 
 function isSqlFragment(value: any): value is SQLFragment {
   return (
@@ -164,6 +167,10 @@ export function toQuery(sqlFragment: SQLFragment, params?: any[]): SQLQuery {
   };
 }
 
+/**
+ * Automatically parameterizes a SQL string with placeholders. Some objects will be inlined into the SQL string, such as `identifier()` and `literal()` values.
+ * @returns 
+ */
 export function sql(
   strings: TemplateStringsArray,
   ...interpolations: any[]
@@ -195,6 +202,9 @@ export function sql(
   return { parts, params };
 }
 
+/**
+ * Escape double quotes in an identifier string
+ */
 export function identifier(value: string): SQLIdentifier {
   if (typeof value !== "string") {
     throw new Error("identifier() only accepts string values");
@@ -210,6 +220,9 @@ export function identifier(value: string): SQLIdentifier {
   };
 }
 
+/**
+ * **IMPORTANT:** This function can allow of SQL injection attacks. Use with caution. It will include the provided value directly into the SQL string.
+ */
 export function raw(value: string | number): SQLRaw {
   return {
     __isRaw: true,
@@ -217,6 +230,9 @@ export function raw(value: string | number): SQLRaw {
   };
 }
 
+/**
+ * Escape single quotes in a literal string
+ */
 export function literal(value: string): SQLLiteral {
   return {
     __isLiteral: true,
@@ -225,7 +241,7 @@ export function literal(value: string): SQLLiteral {
 }
 
 /**
- *
+ * Similar to Array.join(), but for SQL fragments
  * @param fragments An array of sql pieces
  * @param separator An optional separator to use when joining
  * @returns Joins all the sql pieces with the given separator
@@ -250,6 +266,15 @@ export function join(
   }, first);
 }
 
+/**
+ * Determines whether a given SQL fragment is empty, i.e. has no parameters and no content.
+ * 
+ * ```ts
+ * isEmpty(sql``); // true
+ * isEmpty(sql`SELECT`); // false
+ * isEmpty(sql`    `); // false
+ * ```
+ */
 export function isEmpty(fragment: SQLFragment): boolean {
   if (fragment.params.length > 0) {
     return false;
