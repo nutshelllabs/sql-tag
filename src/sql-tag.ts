@@ -250,4 +250,12 @@ export function join(
   }, first);
 }
 
+export function isEmpty(fragment: SQLFragment): boolean {
+  if (fragment.params.length > 0) {
+    return false;
+  }
+
+  return fragment.parts.every((part) => part === "");
+}
+
 export const _jest = { inlineInterpolations };
