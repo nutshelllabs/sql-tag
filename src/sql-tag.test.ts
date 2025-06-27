@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { sql, toQuery, identifier, raw, join, literal, _jest } from "./sql-tag";
+import {
+  sql,
+  toQuery,
+  identifier,
+  raw,
+  join,
+  literal,
+  isEmpty,
+  _jest,
+} from "./sql-tag";
 
 const { inlineInterpolations } = _jest;
 
@@ -710,6 +719,101 @@ describe("literal", () => {
         "SELECT * FROM users WHERE comment = 'O''Reilly''s ''special'' case'",
       );
       expect(result.values).toEqual([]);
+    });
+  });
+});
+
+describe("isEmpty", () => {
+  describe("basic empty fragment handling", () => {
+    it("should return true for empty fragment", () => {
+      const fragment = sql``;
+
+      expect(isEmpty(fragment)).toBe(true);
+    });
+
+    it("should return true for fragment with only whitespace", () => {
+      const fragment = sql`   `;
+
+      expect(isEmpty(fragment)).toBe(false);
+    });
+
+    it("should return true for fragment with mixed whitespace characters", () => {
+      const fragment = sql`  	
+  `;
+
+      expect(isEmpty(fragment)).toBe(false);
+    });
+
+    it("should return false for fragment with content", () => {
+      const fragment = sql`SELECT`;
+
+      expect(isEmpty(fragment)).toBe(false);
+    });
+
+    it("should return false for fragment with content and whitespace", () => {
+      const fragment = sql`  SELECT  `;
+
+      expect(isEmpty(fragment)).toBe(false);
+    });
+  });
+
+  describe("parameter handling", () => {
+    it("should return false for fragment with parameters even if strings are empty", () => {
+      const fragment = sql`${123}`;
+
+      expect(isEmpty(fragment)).toBe(false);
+    });
+
+    it("should return false for fragment with parameters and whitespace", () => {
+      const fragment = sql`  ${123}  `;
+
+      expect(isEmpty(fragment)).toBe(false);
+    });
+
+    it("should return false for fragment with multiple parameters", () => {
+      const fragment = sql`${123}${456}`;
+
+      expect(isEmpty(fragment)).toBe(false);
+    });
+
+    it("should return false for fragment with content and parameters", () => {
+      const fragment = sql`SELECT * FROM users WHERE id = ${123}`;
+
+      expect(isEmpty(fragment)).toBe(false);
+    });
+  });
+
+  describe("composed fragment handling", () => {
+    it("should return true for empty composed fragments", () => {
+      const emptyFragment1 = sql``;
+      const emptyFragment2 = sql``;
+      const composed = sql`${emptyFragment1}${emptyFragment2}`;
+
+      expect(isEmpty(composed)).toBe(true);
+    });
+
+    it("should return true for whitespace-only composed fragments", () => {
+      const whitespaceFragment1 = sql`  `;
+      const whitespaceFragment2 = sql`	`;
+      const composed = sql`${whitespaceFragment1}${whitespaceFragment2}`;
+
+      expect(isEmpty(composed)).toBe(false);
+    });
+
+    it("should return false for composed fragments with content", () => {
+      const contentFragment = sql`SELECT`;
+      const emptyFragment = sql``;
+      const composed = sql`${contentFragment}${emptyFragment}`;
+
+      expect(isEmpty(composed)).toBe(false);
+    });
+
+    it("should return false for composed fragments with parameters", () => {
+      const paramFragment = sql`${123}`;
+      const emptyFragment = sql``;
+      const composed = sql`${paramFragment}${emptyFragment}`;
+
+      expect(isEmpty(composed)).toBe(false);
     });
   });
 });
