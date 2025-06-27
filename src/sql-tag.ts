@@ -169,7 +169,6 @@ export function toQuery(sqlFragment: SQLFragment, params?: any[]): SQLQuery {
 
 /**
  * Automatically parameterizes a SQL string with placeholders. Some objects will be inlined into the SQL string, such as `identifier()` and `literal()` values.
- * @returns 
  */
 export function sql(
   strings: TemplateStringsArray,
@@ -268,7 +267,7 @@ export function join(
 
 /**
  * Determines whether a given SQL fragment is empty, i.e. has no parameters and no content.
- * 
+ *
  * ```ts
  * isEmpty(sql``); // true
  * isEmpty(sql`SELECT`); // false
